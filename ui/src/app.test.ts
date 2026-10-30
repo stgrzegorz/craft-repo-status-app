@@ -202,6 +202,19 @@ test('a cancelled drag restores the previous order', async () => {
   assert.equal(stored(h, 'order'), null);
 });
 
+test('third-party repos are tagged 3P in the table and the urgent list', async () => {
+  const h = await setup({ snap: snapshot([
+    repo('ours', { urgency: 10, urgent: [issue(1, 10, false)] }, { repo: 'storytold/ours' }),
+    repo('theirs', { urgency: 20, urgent: [issue(2, 20, false)] }, { repo: 'tangency-labs/theirs' }),
+  ]) });
+  const tag = (repo: string) => h.doc.querySelector(`tr[data-repo="${repo}"] .third-party`);
+  assert.equal(tag('storytold/ours'), null);
+  assert.equal(tag('tangency-labs/theirs')?.textContent, '3P');
+  assert.equal(tag('tangency-labs/theirs')?.getAttribute('title'), 'Third-party app (tangency-labs)');
+  h.doc.querySelector<HTMLElement>('[data-view="urgent"]')!.click();
+  assert.equal(h.doc.querySelectorAll('.urgent-item .third-party').length, 1);
+});
+
 test('clicking a row, or barely moving it, opens its urgent issues', async () => {
   const h = await setup();
   const row = h.row('alpha');

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   sortEntries, manualOrder, orderedEntries, nextSort, dropIndex, MANUAL, versionKey, freshness, isStale, ago, compact, tokenStatus,
-  totals, urgentAcross, isRefreshing, defaultDir, value, windowById, WINDOWS, COLUMNS, COLUMN,
+  totals, urgentAcross, isRefreshing, isThirdParty, defaultDir, value, windowById, WINDOWS, COLUMNS, COLUMN,
 } from './model.ts';
 import type { Activity, RepoEntry, RepoStats, UrgentIssue } from './model.ts';
 
@@ -223,4 +223,10 @@ test('columns: unique keys, every recent column titled with its span', () => {
   assert.equal(Object.keys(COLUMN).length, COLUMNS.length);
   for (const c of COLUMNS.filter((c) => c.recent)) assert.match(c.title ?? '', /\{span\}/, c.key);
   assert.equal(COLUMNS[0]!.key, 'name', 'the sticky first column is the repo');
+});
+
+test('repos outside our org are third party', () => {
+  assert.equal(isThirdParty('storytold/photocraft'), false);
+  assert.equal(isThirdParty('Storytold/photocraft'), false, 'owners ignore case');
+  assert.equal(isThirdParty('tangency-labs/solidcraft'), true);
 });

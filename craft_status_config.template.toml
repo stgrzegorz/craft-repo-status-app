@@ -19,6 +19,7 @@ repos = [
   "storytold/craft-libs",
   "storytold/craft-launcher",
   "storytold/figcraft",
+  "tangency-labs/solidcraft",  # third party
 ]
 
 # How old a repo's data gets before it's refetched (minutes, at least 1).
