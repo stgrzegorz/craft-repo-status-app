@@ -27,6 +27,7 @@ pub const DEFAULT_REPOS: &[&str] = &[
     "storytold/craft-libs",
     "storytold/craft-launcher",
     "storytold/figcraft",
+    "tangency-labs/solidcraft",
 ];
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

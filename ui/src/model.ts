@@ -281,6 +281,17 @@ export function dropIndex(mids: readonly number[], y: number): number {
   return i === -1 ? mids.length : i;
 }
 
+// ───────────────────────────── ownership ─────────────────────────────
+
+/** GitHub owners whose repos are our own apps; anything else is third party. */
+export const FIRST_PARTY_OWNERS: readonly string[] = ['storytold'];
+
+/** `owner/name` belongs to someone outside FIRST_PARTY_OWNERS. */
+export function isThirdParty(repo: string): boolean {
+  const owner = repo.split('/')[0]?.toLowerCase() ?? '';
+  return !FIRST_PARTY_OWNERS.includes(owner);
+}
+
 // ───────────────────────────── freshness ─────────────────────────────
 
 export function isStale(entry: RepoEntry, staleAfterSecs: number, now: number = Date.now()): boolean {

@@ -3,7 +3,7 @@
 
 import {
   COLUMNS, RECENT, WINDOWS, MANUAL, windowById, value, orderedEntries, nextSort, dropIndex,
-  freshness, ago, totals, urgentAcross, tokenStatus, isRefreshing,
+  freshness, ago, totals, urgentAcross, tokenStatus, isRefreshing, isThirdParty,
 } from './model.ts';
 import type { Column, Meta, RepoEntry, Snapshot, Sort } from './model.ts';
 
@@ -107,6 +107,10 @@ export function start(api: Api): () => void {
     return el('span', { class: 'app-icon none', 'aria-hidden': 'true' }, shortName(entry.repo).charAt(0).toUpperCase());
   }
 
+  /** A "3P" tag for repos outside our own GitHub org; null for ours. */
+  const thirdPartyTag = (repo: string): HTMLElement | null =>
+    isThirdParty(repo) ? el('span', { class: 'third-party', title: `Third-party app (${repo.split('/')[0]})` }, '3P') : null;
+
   /** Cell content for a column. */
   function cell(entry: RepoEntry, col: Column): Node {
     const v = value(entry, col.key, state.window);
@@ -116,7 +120,7 @@ export function start(api: Api): () => void {
         ? `Last attempt failed: ${entry.error}`
         : entry.inaccessible ? 'Not accessible (private, or not found)'
         : entry.fetched_at ? `Fetched ${localTime(entry.fetched_at)}` : 'Not fetched yet';
-      return el('span', { class: 'repo', title: tip }, el('span', { class: 'dot' }), appIcon(entry), link(String(v), gh(entry.repo)));
+      return el('span', { class: 'repo', title: tip }, el('span', { class: 'dot' }), appIcon(entry), link(String(v), gh(entry.repo)), thirdPartyTag(entry.repo));
     }
     if (col.key === 'fetched') {
       const age = v ? el('span', { title: `Fetched ${localTime(String(v))}` }, ago(String(v))) : el('span', { class: 'muted', title: 'Not fetched yet' }, '—');
@@ -336,7 +340,7 @@ export function start(api: Api): () => void {
       const a = Math.min(1, u.score / 90) * 0.5;
       return el('li', { class: `urgent-item${u.critical ? ' critical' : ''}`, onclick: () => openUrl(u.url), title: u.url },
         el('span', { class: 'score', style: `background: rgb(var(--hot-rgb) / ${a.toFixed(2)})` }, String(u.score)),
-        el('span', { class: 'u-repo' }, appIcon(snap.repos.find((r) => r.repo === u.repo) ?? { repo: u.repo }), shortName(u.repo)),
+        el('span', { class: 'u-repo' }, appIcon(snap.repos.find((r) => r.repo === u.repo) ?? { repo: u.repo }), shortName(u.repo), thirdPartyTag(u.repo)),
         el('div', { class: 'u-title' },
           el('span', { class: 'num' }, `#${u.number}`), el('span', { class: 'text' }, u.title),
           el('div', { class: 'reasons' }, u.reasons.map((r) => el('span', { class: `reason${SEVERE.test(r) ? ' sev' : ''}` }, r)),
